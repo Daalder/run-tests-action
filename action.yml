@@ -54,7 +54,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        composer config --global --auth http-basic.repo.packagist.com egbertwietses ${{ env.DAALDER }}
+        composer config --global --auth http-basic.repo.packagist.com egbertwietses ${{ env.PACKAGIST_TOKEN }}
         composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
         composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
