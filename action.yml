@@ -1,5 +1,5 @@
-name: 'Hello World'
-description: 'Greet someone'
+name: 'Daalder package tests'
+description: 'Daalder package tests'
 inputs:
   who-to-greet:  # id of input
     description: 'Who to greet'
@@ -12,12 +12,62 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Get git commit data 1
+      uses: rlespinasse/git-commit-data-action@1.1.0
+
+    - name: Get git commit data 2
       shell: bash
+      run: |
+        echo "AUTHOR_FIRSTNAME=$(echo $GIT_COMMIT_AUTHOR_NAME | head -n1 | cut -d ' ' -f1 | sed -e 's/\(.*\)/\L\1/')" >> $GITHUB_ENV
+        echo "GIT_SHORT_HASH=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
+        echo "GIT_BRANCH=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+    - name: Configure sysctl limits (required for ES)
+      shell: bash
+      run: |
+        sudo swapoff -a
+        sudo sysctl -w vm.swappiness=1
+        sudo sysctl -w fs.file-max=262144
+        sudo sysctl -w vm.max_map_count=262144
+
+    - name: Runs Elasticsearch
+      uses: elastic/elastic-github-actions/elasticsearch@master
+      with:
+        stack-version: 6.8.14
+
+    - name: Set up MySQL
+      shell: bash
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -uroot -proot
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: curl, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, iconv
+        coverage: none
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        composer config --global --auth http-basic.repo.packagist.com egbertwietses ${{secrets.DAALDER}}
+        composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+        composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
+
+    - name: Setup Problem Matches
+      shell: bash
+      run: |
+        echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+        echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+    - name: Execute tests
+      shell: bash
+      run: vendor/bin/phpunit
+
     - id: random-number-generator
       run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
-    - run: goodbye.sh
       shell: bash
