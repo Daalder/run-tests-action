@@ -64,8 +64,8 @@ runs:
       shell: bash
       run: |
         ls -f
-        chmod +x "post_to_slack.sh"
-        ./post_to_slack.sh \
+        chmod +x "${{ github.action_path }}/post_to_slack.sh"
+        "${{ github.action_path }}/post_to_slack.sh" \
             ${{ env.SLACK_BEARER_TOKEN }} \
             "programmers" \
             ${{ steps.run_tests.outcome }} \
