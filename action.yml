@@ -75,10 +75,10 @@ runs:
             ${{ env.SLACK_BEARER_TOKEN }} \
             "programmers" \
             ${{ steps.run_tests.outcome }} \
+            ${{ steps.previous_status.outputs.last_status }} \
             ${{ env.GIT_BRANCH }} \
             ${{ env.GIT_SHA }} \
             ${{ env.GIT_SHORT_SHA }} \
             ${{ env.GIT_COMMIT_MESSAGE_SUBJECT }} \
-            ${{ env.GIT_AUTHOR_FIRSTNAME }} \
-            ${{ steps.previous_status.outputs.last_status }}
+            ${{ env.GIT_AUTHOR_FIRSTNAME }}
       if: always() # Pick up events when the job fails or is canceled
