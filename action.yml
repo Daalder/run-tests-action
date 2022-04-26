@@ -73,15 +73,15 @@ runs:
         ls -f
         chmod +x "${{ github.action_path }}/post_to_slack.sh"
         "${{ github.action_path }}/post_to_slack.sh" \
-            ${{ env.SLACK_BEARER_TOKEN }} \
+            "${{ env.SLACK_BEARER_TOKEN }}" \
             "programmers" \
-            ${{ steps.run_tests.outcome }} \
-            ${{ steps.previous_status.outputs.last_status }} \
-            ${{ env.GITHUB_RUN_ID }}
-            ${{ env.GITHUB_REPOSITORY }}
-            ${{ env.GIT_BRANCH }} \
-            ${{ env.GIT_SHA }} \
-            ${{ env.GIT_SHORT_SHA }} \
-            ${{ env.GIT_COMMIT_MESSAGE_SUBJECT }} \
-            ${{ env.GIT_AUTHOR_FIRSTNAME }}
+            "${{ steps.run_tests.outcome }}" \
+            "${{ steps.previous_status.outputs.last_status }}" \
+            "$GITHUB_RUN_ID" \
+            "$GITHUB_REPOSITORY" \
+            "$GIT_BRANCH" \
+            "$GITHUB_SHA" \
+            "${{ env.GIT_SHORT_SHA }}" \
+            "${{ env.GIT_COMMIT_MESSAGE_SUBJECT }}" \
+            "${{ env.GIT_AUTHOR_FIRSTNAME }}"
       if: always() # Pick up events when the job fails or is canceled
