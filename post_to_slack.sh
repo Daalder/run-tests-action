@@ -6,11 +6,14 @@ SLACK_BEARER_TOKEN=$1
 SLACK_CHANNEL=$2
 ACTION_STATUS=$3
 ACTION_PREVIOUS_STATUS=$4
-GIT_BRANCH=$5
-GIT_SHA=$6
-GIT_SHORT_SHA=$7
-GIT_COMMIT_MESSAGE=$8
-GIT_AUTHOR_FIRSTNAME=$9
+ACTION_RUN_ID=$5
+GITHUB_REPOSITORY=$6
+GIT_BRANCH=$7
+GIT_SHA=$8
+GIT_SHORT_SHA=$9
+GIT_COMMIT_MESSAGE=${10}
+GIT_AUTHOR_FIRSTNAME=${11}
+ACTION_URL="https://github.com/$GITHUB_REPOSITORY/runs/$ACTION_RUN_ID"
 
 # If previous and current action succeeded, there is no need for a Slack notification
 if [ "$ACTION_STATUS" == "success" ] && [ "$ACTION_PREVIOUS_STATUS" == "success" ]; then
@@ -19,22 +22,58 @@ if [ "$ACTION_STATUS" == "success" ] && [ "$ACTION_PREVIOUS_STATUS" == "success"
 fi
 
 # Define message string
-message=""
+pretext=""
+color=""
 
 # If action failed
 if [ "$ACTION_STATUS" == "failure" ]; then
-  message+=":no_entry: daalder/feeds tests failed for"
+  pretext+=":no_entry: <$ACTION_URL|Pipeline #$ACTION_RUN_ID> *failed* for \`$GIT_BRANCH\` @ \`<https://github.com/$GITHUB_REPOSITORY/commit/$GIT_SHA|$GIT_SHORT_SHA>\`."
+  color="#FF5630"
 else
   # If action succeeded
-  message+=":white_check_mark: daalder/feeds tests fixed with"
+  pretext+=":white_check_mark: <$ACTION_URL|Pipeline #$ACTION_RUN_ID> *fixed* for \`$GIT_BRANCH\` @ \`<https://github.com/$GITHUB_REPOSITORY/commit/$GIT_SHA|$GIT_SHORT_SHA>\`."
+  color="#36B37E"
 fi
 
-# Include branch, url to commit, commiter name, commit message
-message+=" \`$GIT_BRANCH\` @ \`<https://github.com/Daalder/feeds/commit/$GIT_SHA|$GIT_SHORT_SHA>\` by @$GIT_AUTHOR_FIRSTNAME."
-message+=" Commit message: \`$GIT_COMMIT_MESSAGE\`"
+# Get Slack user id
+SLACK_USER_ID=$(curl -X GET \
+  -H "Authorization: Bearer $SLACK_BEARER_TOKEN" \
+  "https://slack.com/api/users.list" \
+  | jq .members \
+  | jq -c ".[] | select(.name | test(\"$GIT_AUTHOR_FIRSTNAME\"; \"i\"))" \
+  | jq .id \
+  | xargs)
 
-# Post formatted message to Slack
+# Prepare Slack message
+message="{
+  \"channel\": \"$SLACK_CHANNEL\",
+  \"link_names\": 1,
+  \"attachments\": [
+    {
+      \"mrkdwn_in\": [\"text\"],
+      \"color\": \"$color\",
+      \"pretext\": \"$pretext\",
+      \"author_name\": \"$GIT_AUTHOR_FIRSTNAME\",
+      \"fields\": [
+        {
+          \"value\": \"\`<https://github.com/$GITHUB_REPOSITORY/commit/$GIT_SHA|$GIT_SHORT_SHA>\` $GIT_COMMIT_MESSAGE (by <@$SLACK_USER_ID>).\",
+          \"short\": false
+        }
+      ],
+      \"footer\": \"<https://github.com/$GITHUB_REPOSITORY|$GITHUB_REPOSITORY>\",
+      \"footer_icon\": \"https://daalder.io/app/themes/daalder/assets/images/favicons/favicon.ico\"
+    }
+  ]
+}"
+
+# Debugging:
+#echo "========================="
+#echo "$message"
+#echo "========================="
+
+## Post formatted message to Slack
 curl -X POST \
   -H "Authorization: Bearer $SLACK_BEARER_TOKEN" \
+  -H 'Content-Type: application/json; charset=utf-8' \
   "$SLACK_BASE_URL?channel=$SLACK_CHANNEL&link_names=true&pretty=1" \
-  --data-urlencode "text=$message"
+  --data "$message"

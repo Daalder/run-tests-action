@@ -76,6 +76,8 @@ runs:
             "programmers" \
             ${{ steps.run_tests.outcome }} \
             ${{ steps.previous_status.outputs.last_status }} \
+            ${{ env.GITHUB_RUN_ID }}
+            ${{ env.GITHUB_REPOSITORY }}
             ${{ env.GIT_BRANCH }} \
             ${{ env.GIT_SHA }} \
             ${{ env.GIT_SHORT_SHA }} \
