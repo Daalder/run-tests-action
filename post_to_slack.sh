@@ -13,7 +13,8 @@ GIT_SHA=$8
 GIT_SHORT_SHA=$9
 GIT_COMMIT_MESSAGE=${10}
 GIT_AUTHOR_FIRSTNAME=${11}
-ACTION_URL="https://github.com/$GITHUB_REPOSITORY/runs/$ACTION_RUN_ID"
+GIT_AUTHOR_FULLNAME=${12}
+ACTION_URL="https://github.com/$GITHUB_REPOSITORY/actions/runs/$ACTION_RUN_ID"
 
 # If previous and current action succeeded, there is no need for a Slack notification
 if [ "$ACTION_STATUS" == "success" ] && [ "$ACTION_PREVIOUS_STATUS" == "success" ]; then
@@ -53,7 +54,7 @@ message="{
       \"mrkdwn_in\": [\"text\"],
       \"color\": \"$color\",
       \"pretext\": \"$pretext\",
-      \"author_name\": \"$GIT_AUTHOR_FIRSTNAME\",
+      \"author_name\": \"$GIT_AUTHOR_FULLNAME\",
       \"fields\": [
         {
           \"value\": \"\`<https://github.com/$GITHUB_REPOSITORY/commit/$GIT_SHA|$GIT_SHORT_SHA>\` $GIT_COMMIT_MESSAGE (by <@$SLACK_USER_ID>).\",

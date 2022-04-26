@@ -83,5 +83,6 @@ runs:
             "$GITHUB_SHA" \
             "${{ env.GIT_SHORT_SHA }}" \
             "${{ env.GIT_COMMIT_MESSAGE_SUBJECT }}" \
-            "${{ env.GIT_AUTHOR_FIRSTNAME }}"
+            "${{ env.GIT_AUTHOR_FIRSTNAME }}" \
+            "${{ env.GIT_COMMIT_AUTHOR_NAME }}"
       if: always() # Pick up events when the job fails or is canceled
