@@ -64,7 +64,7 @@ runs:
       uses: Mercymeilya/last-workflow-status@v0.3
       id: previous_status
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ env.GITHUB_TOKEN }}
 
     - name: Post failure status to Slack
       shell: bash
