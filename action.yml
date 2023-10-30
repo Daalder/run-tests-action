@@ -68,21 +68,14 @@ runs:
       with:
         github_token: ${{ env.GITHUB_TOKEN }}
 
-    - name: Post failure status to Slack
-      shell: bash
-      run: |
-        chmod +x "${{ github.action_path }}/post_to_slack.sh"
-        "${{ github.action_path }}/post_to_slack.sh" \
-            "${{ env.SLACK_BEARER_TOKEN }}" \
-            "programmers" \
-            "${{ steps.run_tests.outcome }}" \
-            "${{ steps.previous_status.outputs.last_status }}" \
-            "$GITHUB_RUN_ID" \
-            "$GITHUB_REPOSITORY" \
-            "$GIT_BRANCH" \
-            "$GITHUB_SHA" \
-            "${{ env.GIT_SHORT_SHA }}" \
-            "${{ env.GIT_COMMIT_MESSAGE_SUBJECT }}" \
-            "${{ env.GIT_AUTHOR_FIRSTNAME }}" \
-            "${{ env.GIT_COMMIT_AUTHOR_NAME }}"
-      if: always() # Pick up events when the job fails or is canceled
+    - name: Run Slack Notification
+      uses: rohammosalli/slack-action@master
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+        SLACK_CHANNEL: "Your Channel"
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        GITHUB_RUN_ID: ${{ github.run_id }}
+        REPO_OWNER: ${{ github.repository_owner }}
+        REPO_NAME: ${{ github.event.repository.name }}
+        RUN_ID: ${{ github.run_id }}
+        SEND_SUCCESS_MESSAGE: "true"
