@@ -51,16 +51,3 @@ runs:
       id: run_tests
       shell: bash
       run: vendor/bin/phpunit
-
-    - name: Run Slack Notification
-      uses: rohammosalli/slack-action@master
-      env:
-        SLACK_BOT_TOKEN: ${{ env.SLACK_BEARER_TOKEN }}
-        SLACK_CHANNEL: "pipelines-notifications"
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        GITHUB_RUN_ID: ${{ github.run_id }}
-        REPO_OWNER: ${{ github.repository_owner }}
-        REPO_NAME: ${{ github.event.repository.name }}
-        RUN_ID: ${{ github.run_id }}
-        SEND_SUCCESS_MESSAGE: "true"
-      if: always()
