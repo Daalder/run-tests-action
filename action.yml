@@ -62,18 +62,12 @@ runs:
       shell: bash
       run: vendor/bin/phpunit
 
-    - name: Get previous workflow status
-      uses: Mercymeilya/last-workflow-status@v0.3
-      id: previous_status
-      with:
-        github_token: ${{ env.GITHUB_TOKEN }}
-
     - name: Run Slack Notification
       uses: rohammosalli/slack-action@master
       env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BEARER_TOKEN }}
+        SLACK_BOT_TOKEN: ${{ env.SLACK_BEARER_TOKEN }}
         SLACK_CHANNEL: "Your Channel"
-        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
         GITHUB_RUN_ID: ${{ github.run_id }}
         REPO_OWNER: ${{ github.repository_owner }}
         REPO_NAME: ${{ github.event.repository.name }}
