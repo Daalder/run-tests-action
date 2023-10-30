@@ -38,7 +38,7 @@ runs:
         sudo apt install --yes jq 
         composer config --global --auth http-basic.repo.packagist.com "Vincent van Hoven" ${{ env.PACKAGIST_TOKEN }}
         echo '{"http-basic": {"repo.packagist.com": {"username": "Vincent van Hoven", "password": "${{ env.PACKAGIST_TOKEN }}"}}}' > $GITHUB_WORKSPACE/auth.json
-        composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+        composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
         composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
     - name: Setup Problem Matches
