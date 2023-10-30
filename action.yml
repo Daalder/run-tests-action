@@ -6,16 +6,6 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Get git commit data 1
-      uses: rlespinasse/git-commit-data-action@1.1.0
-
-    - name: Get git commit data 2
-      shell: bash
-      run: |
-        echo "GIT_AUTHOR_FIRSTNAME=$(echo $GIT_COMMIT_AUTHOR_NAME | head -n1 | cut -d ' ' -f1 | sed -e 's/\(.*\)/\L\1/')" >> $GITHUB_ENV
-        echo "GIT_SHORT_SHA=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
-        echo "GIT_BRANCH=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
-
     - name: Configure sysctl limits (required for ES)
       shell: bash
       run: |
@@ -73,3 +63,4 @@ runs:
         REPO_NAME: ${{ github.event.repository.name }}
         RUN_ID: ${{ github.run_id }}
         SEND_SUCCESS_MESSAGE: "true"
+      if: always()
