@@ -66,7 +66,7 @@ runs:
       uses: rohammosalli/slack-action@master
       env:
         SLACK_BOT_TOKEN: ${{ env.SLACK_BEARER_TOKEN }}
-        SLACK_CHANNEL: "Your Channel"
+        SLACK_CHANNEL: "pipelines-notifications"
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
         GITHUB_RUN_ID: ${{ github.run_id }}
         REPO_OWNER: ${{ github.repository_owner }}
